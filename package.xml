@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>optoforce_contact</name>
+  <name>contact_detection</name>
   <version>0.0.0</version>
-  <description>The optoforce_contact package</description>
+  <description>Basic contact detection functionalities</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/optoforce_contact</url> -->
+  <!-- <url type="website">http://wiki.ros.org/contact_dection</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->

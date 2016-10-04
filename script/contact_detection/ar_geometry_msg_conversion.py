@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-@package optoforce_contact
+@package contact_detection
 @file ar_geometry_msgs_conversion.py
 @author Anthony Remazeilles
 @brief see README.md
