@@ -1,0 +1,16 @@
+# goal definition
+# whether we want to recalibrate the noise estimation
+# note that noise needs to be estimated at least the first time
+bool do_noise_calibration
+# frequency at which we want to publish the current status
+int32 frequency
+# whether or not the action should ends on contact detection
+bool finish_on_contact
+---
+# result definition
+bool is_on_contact
+---
+# feedback definition
+# current status
+bool is_in_contact
+
