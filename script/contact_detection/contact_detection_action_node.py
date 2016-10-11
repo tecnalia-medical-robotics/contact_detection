@@ -37,14 +37,14 @@ class WrenchContactDetectorNode(object):
                                                            execute_cb=self._execute_cb, auto_start=False)
         self._action_server.start()
 
-    def execute_cb(self, goal):
+    def _execute_cb(self, goal):
         """
         adress an action request
         :param goal the provided spec of the current action
         """
         rospy.loginfo("{} launching contact detector action with spec {}".format(self._name, goal))
-        feedback = contact_detection.DetectContactFeedback()
-        result = contact_detection.DetectContactResult()
+        feedback = contact_detection.msg.DetectContactFeedback()
+        result = contact_detection.msg.DetectContactResult()
 
         rate = rospy.Rate(goal.frequency)
 
@@ -54,7 +54,7 @@ class WrenchContactDetectorNode(object):
             feedback.is_in_contact = False
             self._action_server.publish_feedback(feedback)
 
-            end_loop = self._action_server.is_preempt_requested() or rospy._is_shutdown() or is_in_contact
+            end_loop = self._action_server.is_preempt_requested() or rospy.is_shutdown() or is_in_contact
             rate.sleep()
 
         if self._action_server.is_preempt_requested():
