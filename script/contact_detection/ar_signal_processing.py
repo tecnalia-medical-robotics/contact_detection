@@ -33,7 +33,7 @@ class SignalAnalysis(object):
 
     def clear_std(self):
         self._signals = []
-        for i in xrange(size):
+        for i in xrange(self._size):
             self._signals.append([])
         self._mean = None
         self._std = None

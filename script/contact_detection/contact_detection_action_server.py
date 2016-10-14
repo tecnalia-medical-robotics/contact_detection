@@ -42,14 +42,14 @@ class WrenchContactDetectorNode(object):
         adress an action request
         :param goal the provided spec of the current action
         """
-        rospy.loginfo("{} launching contact detector action with spec {}".format(self._name, goal))
+        rospy.loginfo("{} launching contact detector action with spec \n {}".format(self._name, goal))
         feedback = contact_detection.msg.DetectContactFeedback()
         result = contact_detection.msg.DetectContactResult()
 
         rate = rospy.Rate(goal.frequency)
 
         if goal.do_noise_calibration:
-            analysis.clear_std()
+            self._analysis.clear_std()
         
         sub_wrench = rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
         
@@ -58,9 +58,10 @@ class WrenchContactDetectorNode(object):
 
         while not end_loop:
 
-            feedback._is_in_contact = self._analysis.std_violation
-            
-            self._action_server.publish_feedback(feedback)
+            feedback.is_in_contact = self._analysis._std_violation
+
+            if not self._action_server.is_preempt_requested():
+                self._action_server.publish_feedback(feedback)
 
             if goal.finish_on_contact and feedback.is_in_contact:
                 end_loop = True
@@ -72,31 +73,29 @@ class WrenchContactDetectorNode(object):
 
         # we unregister from the topic
         sub_wrench.unregister()
-            
+
         if self._action_server.is_preempt_requested():
             self._action_server.set_preempted()
         else:
             result.is_in_contact = feedback.is_in_contact
             
-            if is_in_contact:
-                self._action_server.set_succeeded(feedback)
+            if result.is_in_contact:
+                self._action_server.set_succeeded(result)
             else:
-                self._action_server.set_aborted(feedback)
+                self._action_server.set_aborted(result)
+        rospy.loginfo("End of the action")
 
-
+        
     def _wrench_callback(self, msg):
         # rospy.loginfo("{} received: {}".format(name, msg))
-
         output = self._analysis.process(wrench_to_array(msg.wrench))
-        print "output is: {}".format(output)
-
+        # print "output is: {}".format(output)
 
 if __name__ == '__main__':
     name = "wrench_contact_detector"
     rospy.init_node(name, anonymous=True)
 
     detector = WrenchContactDetectorNode(name)
-
 
     if detector._is_init_ok:
         rospy.spin()
