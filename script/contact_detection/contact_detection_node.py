@@ -10,6 +10,7 @@ Distributed under the GNU GPL v3. For full terms see https://www.gnu.org/license
 """
 
 import rospy
+import sys
 
 from geometry_msgs.msg import Point, WrenchStamped
 from ar_signal_processing import SignalAnalysis
@@ -20,7 +21,7 @@ class WrenchContactDetectorNode(object):
     def __init__(self, name="WrenchContactDetector"):
         self._name = name
         self._is_init_ok = False
-        self._analysis = SignalAnalysis(size=6, num_sample_init=50)
+        self._analysis = SignalAnalysis(size=6, num_sample_init=500, deviation_max=30)
 
         self._is_init_ok = True
 
@@ -29,20 +30,19 @@ class WrenchContactDetectorNode(object):
         # for receiving the wrenches
         self.sub_wrench =  rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
 
-
     def _wrench_callback(self, msg):
         # rospy.loginfo("{} received: {}".format(name, msg))
 
         output = self._analysis.process(wrench_to_array(msg.wrench))
-        print "output is: {}".format(output)
 
+        if output:
+            print "Contact"
 
 if __name__ == '__main__':
     name = "wrench_contact_detector"
     rospy.init_node(name, anonymous=True)
 
     detector = WrenchContactDetectorNode(name)
-
 
     if detector._is_init_ok:
         rospy.spin()

@@ -6,7 +6,8 @@
 @brief see README.md
 
 Copyright Tecnalia Research and Innovation 2016
-Distributed under the GNU GPL v3. For full terms see https://www.gnu.org/licenses/gpl.txt
+Distributed under the GNU GPL v3.
+For full terms see https://www.gnu.org/licenses/gpl.txt
 """
 
 import rospy
@@ -22,14 +23,13 @@ class WrenchContactDetectorNode(object):
     def __init__(self, name="wrench_contact_detector"):
         self._name = name
         self._is_init_ok = False
-        self._analysis = SignalAnalysis(size=6, num_sample_init=50)
+        self._analysis = SignalAnalysis(size=6, num_sample_init=500, deviation_max=30)
 
         self._is_init_ok = True
 
         # ###########################
         # initialising ros interface
         # for receiving the wrenches
-        # self.sub_wrench =  rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
         self._sub_wrench =  None
 
         self._action_server = actionlib.SimpleActionServer(self._name,
@@ -48,18 +48,36 @@ class WrenchContactDetectorNode(object):
 
         rate = rospy.Rate(goal.frequency)
 
+        if goal.do_noise_calibration:
+            analysis.clear_std()
+        
+        sub_wrench = rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
+        
         end_loop = False
-        is_in_contact = False
+        feedback.is_in_contact = False
+
         while not end_loop:
-            feedback.is_in_contact = False
+
+            feedback._is_in_contact = self._analysis.std_violation
+            
             self._action_server.publish_feedback(feedback)
 
-            end_loop = self._action_server.is_preempt_requested() or rospy.is_shutdown() or is_in_contact
-            rate.sleep()
+            if goal.finish_on_contact and feedback.is_in_contact:
+                end_loop = True
+            else:
+            end_loop = self._action_server.is_preempt_requested() or rospy.is_shutdown()
 
+            if not end_loop:
+                rate.sleep()
+
+        # we unregister from the topic
+        sub_wrench.unregister()
+            
         if self._action_server.is_preempt_requested():
             self._action_server.set_preempted()
         else:
+            result.is_in_contact = feedback.is_in_contact
+            
             if is_in_contact:
                 self._action_server.set_succeeded(feedback)
             else:
