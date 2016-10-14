@@ -8,7 +8,7 @@ int32 frequency
 bool finish_on_contact
 ---
 # result definition
-bool is_on_contact
+bool is_in_contact
 ---
 # feedback definition
 # current status
