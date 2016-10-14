@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 @package contact_detection
-@file ar_signal_processing.py
+@file contact_detection_action_server.py
 @author Anthony Remazeilles
 @brief see README.md
 
@@ -65,7 +65,7 @@ class WrenchContactDetectorNode(object):
             if goal.finish_on_contact and feedback.is_in_contact:
                 end_loop = True
             else:
-            end_loop = self._action_server.is_preempt_requested() or rospy.is_shutdown()
+                end_loop = self._action_server.is_preempt_requested() or rospy.is_shutdown()
 
             if not end_loop:
                 rate.sleep()
