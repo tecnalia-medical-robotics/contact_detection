@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch> 
+  <arg name="use_max_force" default="1"/>
+  <arg name="max_force" default="2.0"/>
+
+  <node pkg="contact_detection" type="contact_detection_action_server.py" name="contact_detection_server" output="screen">
+    <!--<remap from="wrench" to="/optoforce_node/wrench_IRE0A004"/>-->
+    <remap from="wrench" to="/wrench2"/>
+    <param name="use_max_force" type="bool" value="$(arg use_max_force)" />
+    <param name="max_force" type="double" value="$(arg max_force)" />
+
+  </node>
+</launch>

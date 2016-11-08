@@ -9,8 +9,15 @@ bool finish_on_contact
 ---
 # result definition
 bool is_in_contact
+# final deviation
+float32 deviation
+# related force
+geometry_msgs/Wrench wrench
 ---
 # feedback definition
 # current status
 bool is_in_contact
-
+# current deviation
+float32 deviation
+# mean wrench
+geometry_msgs/Wrench mean_wrench

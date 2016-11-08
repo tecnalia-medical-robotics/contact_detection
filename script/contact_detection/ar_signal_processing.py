@@ -13,11 +13,13 @@ For full terms see https://www.gnu.org/licenses/gpl.txt
 import numpy
 from termcolor import colored
 import sys
+
+
 class SignalAnalysis(object):
     """
     Class gathering methods for processing an input signal
     """
-    def __init__(self, size=1, num_sample_init=50, deviation_max=10, verbose=False):
+    def __init__(self, size=1, num_sample_init=50, deviation_max=10, use_max_force=False, verbose=False):
 
         self._num_sample_init = num_sample_init
         self._size = size
@@ -28,8 +30,11 @@ class SignalAnalysis(object):
         self._std = None
         self._num_sample = 0
         self._deviation_max = deviation_max
+        self._use_max_force = use_max_force
+        self._deviation = None
         self._std_violation = False
         self._verbose = verbose
+        self._last_data = None
 
     def clear_std(self):
         self._signals = []
@@ -39,6 +44,13 @@ class SignalAnalysis(object):
         self._std = None
         self._num_sample = 0
         self._std_violation = False
+        self._deviation = None
+        self._last_data = None
+
+    def clear_detection(self):
+        self._std_violation = False
+        self._deviation = None
+        self._last_data = None
 
     def process(self, data):
         data_array = numpy.asarray(data)
@@ -47,6 +59,7 @@ class SignalAnalysis(object):
             print "data shape: {} not consistent with spec {}".format(size, self._size)
             return False
 
+        self._last_data = data_array
         self._num_sample += 1
         #print "num_sample = {}".format(self._num_sample)
         if self._num_sample < self._num_sample_init:
@@ -67,8 +80,15 @@ class SignalAnalysis(object):
 
         if self._num_sample > self._num_sample_init:
             deviation = numpy.abs(data_array - self._mean)
-            max_violation = deviation > (self._deviation_max * self._std)
-            self._std_violation = numpy.any(max_violation)
+
+            if self._use_max_force:
+                 force_error = deviation[0:3]
+                 norm_force = numpy.linalg.norm(force_error)
+                 self._deviation = norm_force
+                 self._std_violation = norm_force > self._deviation_max
+            else:
+                max_violation = deviation > (self._deviation_max * self._std)
+                self._std_violation = numpy.any(max_violation)
 
         if self._verbose and self._std_violation:
             color = 'red' if self._std_violation else 'blue'

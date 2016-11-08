@@ -15,7 +15,7 @@ import rospy
 from geometry_msgs.msg import WrenchStamped
 from std_msgs.msg import Empty
 from ar_signal_processing import SignalAnalysis
-from ar_geometry_msg_conversion import wrench_to_array
+from ar_geometry_msg_conversion import wrench_to_array, array_to_wrench
 import actionlib
 import contact_detection.msg
 
@@ -24,9 +24,31 @@ class WrenchContactDetectorNode(object):
     def __init__(self, name="wrench_contact_detector"):
         self._name = name
         self._is_init_ok = False
-        self._analysis = SignalAnalysis(size=6,
-                                        num_sample_init=500,
-                                        deviation_max=30)
+
+        if rospy.has_param('~use_max_force'):
+            max_force = rospy.get_param('~use_max_force')
+            rospy.loginfo("{} use max force set to {}".format(rospy.get_name(), max_force))
+        else:
+            max_force = False
+            rospy.logwarn("{} max_force set to default value: {}".format(rospy.get_name(), max_force))
+        # max_force = True
+        if max_force:
+            if rospy.has_param('~max_force'):
+                max_force_th = rospy.get_param('~max_force')
+                rospy.loginfo("{} max force threshold set to {}".format(rospy.get_name(), max_force_th))
+            else:
+                max_force_th = 2.0
+                rospy.logwarn("{} max_force threshold set to default value: {}".format(rospy.get_name(), max_force_th))
+
+            self._analysis = SignalAnalysis(size=6,
+                                            num_sample_init=500,
+                                            deviation_max=max_force_th,
+                                            use_max_force=True)
+        else:
+            self._analysis = SignalAnalysis(size=6,
+                                            num_sample_init=500,
+                                            deviation_max=30,
+                                            use_max_force=False)
         self._is_init_ok = True
 
         # ###########################
@@ -62,14 +84,21 @@ class WrenchContactDetectorNode(object):
         if goal.do_noise_calibration:
             self._analysis.clear_std()
 
-        sub_wrench = rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
-
         end_loop = False
         feedback.is_in_contact = False
 
-        while not end_loop:
+        sub_wrench = rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
 
+        self._analysis.clear_detection()
+        while not end_loop:
             feedback.is_in_contact = self._analysis._std_violation
+            if self._analysis._deviation is not None:
+                feedback.deviation = self._analysis._deviation
+            else:
+                feedback.deviation = 0.0
+
+            if self._analysis._mean is not None:
+                feedback.mean_wrench = array_to_wrench(self._analysis._mean)
 
             if not self._action_server.is_preempt_requested():
                 self._action_server.publish_feedback(feedback)
@@ -89,6 +118,10 @@ class WrenchContactDetectorNode(object):
             self._action_server.set_preempted()
         else:
             result.is_in_contact = feedback.is_in_contact
+            result.deviation = feedback.deviation
+
+            if self._analysis._last_data is not None:
+                result.wrench = array_to_wrench(self._analysis._last_data)
 
             if result.is_in_contact:
                 self._action_server.set_succeeded(result)

@@ -72,6 +72,7 @@ catkin_python_setup()
  generate_messages(
    DEPENDENCIES
    actionlib_msgs
+   geometry_msgs
 )
 
 ################################################
@@ -107,7 +108,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES contact_detection
 #  CATKIN_DEPENDS geometry_msgs roscpp rospy
-DEPENDS actionlib_msgs
+DEPENDS actionlib_msgs geometry_msgs
 )
 
 ###########

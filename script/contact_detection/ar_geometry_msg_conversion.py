@@ -12,7 +12,7 @@ For full terms see https://www.gnu.org/licenses/gpl.txt
 
 
 import numpy
-
+from geometry_msgs.msg import Wrench, Vector3
 
 def wrench_to_array(wrench):
     """
@@ -22,3 +22,12 @@ def wrench_to_array(wrench):
     """
     return numpy.array([wrench.force.x, wrench.force.y, wrench.force.z,
                         wrench.torque.x, wrench.torque.y, wrench.torque.z])
+
+def array_to_wrench(array):
+    """
+    convert a numpy array to a geometry_msgs
+    :param array: the array to convert
+    :return: the related wrench
+    :warning the array size is not checked
+    """
+    return Wrench(Vector3(*array[0:3]), Vector3(*array[3:6]))
