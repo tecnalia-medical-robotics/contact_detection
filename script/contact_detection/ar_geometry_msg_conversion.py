@@ -6,7 +6,8 @@
 @brief see README.md
 
 Copyright Tecnalia Research and Innovation 2016
-Distributed under the GNU GPL v3. For full terms see https://www.gnu.org/licenses/gpl.txt
+Distributed under the GNU GPL v3.
+For full terms see https://www.gnu.org/licenses/gpl.txt
 """
 
 
@@ -20,4 +21,4 @@ def wrench_to_array(wrench):
     :return: the related array
     """
     return numpy.array([wrench.force.x, wrench.force.y, wrench.force.z,
-                         wrench.torque.x, wrench.torque.y, wrench.torque.z])
+                        wrench.torque.x, wrench.torque.y, wrench.torque.z])

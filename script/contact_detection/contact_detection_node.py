@@ -6,7 +6,8 @@
 @brief see README.md
 
 Copyright Tecnalia Research and Innovation 2016
-Distributed under the GNU GPL v3. For full terms see https://www.gnu.org/licenses/gpl.txt
+Distributed under the GNU GPL v3.
+For full terms see https://www.gnu.org/licenses/gpl.txt
 """
 
 import rospy
@@ -24,11 +25,10 @@ class WrenchContactDetectorNode(object):
         self._analysis = SignalAnalysis(size=6, num_sample_init=500, deviation_max=30)
 
         self._is_init_ok = True
-
         # ###########################
         # initialising ros interface
         # for receiving the wrenches
-        self.sub_wrench =  rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
+        self.sub_wrench = rospy.Subscriber("wrench", WrenchStamped, self._wrench_callback)
 
     def _wrench_callback(self, msg):
         # rospy.loginfo("{} received: {}".format(name, msg))

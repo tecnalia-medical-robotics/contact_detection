@@ -50,7 +50,6 @@ if __name__ == '__main__':
         rospy.init_node('contact_detector_client')
         result = contact_client()
         print "Result: {}".format(result)
-        
     except rospy.ROSInterruptException:
         print "program interrupted before completion"
 
